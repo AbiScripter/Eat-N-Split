@@ -1,0 +1,48 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto Mono", sans-serif;
+}
+
+.container {
+  display: grid;
+  border: 2px solid red;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.friends-container {
+  /* width: 500px; */
+  padding: 1.5rem;
+  border: 2px solid aqua;
+  /* display: grid; */
+  /* grid-template-columns: 1fr; */
+}
+
+.friend {
+  background-color: red;
+  padding: 1rem;
+  border: 1px solid yellow;
+  display: grid;
+  grid-template-columns: 1fr 5fr auto 1fr;
+}
+
+h2 {
+  padding: 1rem;
+}
+
+.bill-container {
+  /* top: 0;
+  position: absolute;
+  right: 10; */
+  /* display: grid; */
+}
+
+.bill-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 2rem;
+}
+button {
+  padding: 0.2rem 0.6rem;
+}
