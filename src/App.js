@@ -31,16 +31,24 @@ function Button({ children, onClick }) {
 }
 
 function App() {
+  const [friends, setFriends] = useState(initialFriends);
   const [showAddFriend, setShowAddFriend] = useState(false);
 
   function handleShowAddFriend() {
     setShowAddFriend((show) => !show);
   }
+
+  function handleAddFriend(newFriend) {
+    setFriends((friends) => [...friends, newFriend]);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
-        {showAddFriend && <FormAddFriend />}
+        <FriendsList friends={friends} />
+
+        {showAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
+
         <Button onClick={handleShowAddFriend}>
           {showAddFriend ? "Close" : "Add Friend"}
         </Button>
@@ -50,9 +58,8 @@ function App() {
   );
 }
 
-function FriendsList() {
-  const friends = initialFriends;
-
+function FriendsList({ friends }) {
+  console.log(friends);
   return (
     <ul>
       {friends.map((friend) => (
@@ -64,29 +71,28 @@ function FriendsList() {
 
 function Friend({ friend }) {
   return (
-    <>
-      <li>
-        <img src={friend.image} alt={friend.name} />
-        <h3>{friend.name}</h3>
-        {friend.balance < 0 ? (
-          <p className="red">
-            You owe {friend.name} ₹{Math.abs(friend.balance)}
-          </p>
-        ) : friend.balance > 0 ? (
-          <p className="green">
-            {friend.name} owes You ₹{Math.abs(friend.balance)}
-          </p>
-        ) : (
-          <p>You and {friend.name} are even</p>
-        )}
+    <li>
+      <img src={friend.image} alt={friend.name} />
+      <h3>{friend.name}</h3>
 
-        <Button>Select</Button>
-      </li>
-    </>
+      {friend.balance < 0 && (
+        <p className="red">
+          You owe {friend.name} {Math.abs(friend.balance)}€
+        </p>
+      )}
+      {friend.balance > 0 && (
+        <p className="green">
+          {friend.name} owes you {Math.abs(friend.balance)}€
+        </p>
+      )}
+      {friend.balance === 0 && <p>You and {friend.name} are even</p>}
+
+      <Button>Select</Button>
+    </li>
   );
 }
 
-function FormAddFriend() {
+function FormAddFriend({ onAddFriend }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("https://i.pravatar.cc/48");
 
@@ -94,18 +100,18 @@ function FormAddFriend() {
     e.preventDefault();
 
     //guard when submitted empty
-    if (!name || !image) {
-      return;
-    }
+    if (!name || !image) return;
 
-    const id = crypto.randomUUID();
-    let newFriend = {
+    const id = date.now();
+    const newFriend = {
       id,
       name,
       image: `${image}?=${id}`,
       balance: 0,
     };
+    console.log(newFriend);
 
+    onAddFriend(newFriend);
     setName("");
     setImage("https://i.pravatar.cc/48");
   }
