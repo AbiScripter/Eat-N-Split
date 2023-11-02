@@ -46,7 +46,32 @@ function App() {
   }
 
   function handleSelection(friend) {
-    setSelectedFriend(friend);
+    //if already selected
+    setSelectedFriend((curr) => (curr?.id === friend.id ? null : friend));
+    //hide showfriendform if select button clicked
+    setShowAddFriend(false);
+  }
+
+  function handleBillSplit(bill, myExpense, whoPaid, selectedFriend) {
+    if (whoPaid == "user") {
+      let owesYou = 0 + (bill - myExpense);
+      console.log(`${selectedFriend.name} owes you ${bill - myExpense}`);
+      seperate(selectedFriend, owesYou);
+    } else {
+      let youOwe = 0 - myExpense;
+      console.log(`You owe ${selectedFriend.name} ${myExpense}`);
+      seperate(selectedFriend, youOwe);
+    }
+
+    // setSelectedFriend(null);
+  }
+
+  function seperate(selectedFriend, owe) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === selectedFriend.id ? { ...friend, balance: owe } : friend
+      )
+    );
   }
 
   return (
@@ -65,7 +90,12 @@ function App() {
         </Button>
       </div>
 
-      {selectedFriend && <FormSplitBill selectedFriend={selectedFriend} />}
+      {selectedFriend && (
+        <FormSplitBill
+          selectedFriend={selectedFriend}
+          handleBillSplit={handleBillSplit}
+        />
+      )}
     </div>
   );
 }
@@ -89,8 +119,13 @@ function Friend({ friend, onHandleSelection, selectedFriend }) {
   //initally no friend is selected so selectedFriend will be null, so accessing it causes error, so we use optional chaining
   const isSelected = selectedFriend?.id === friend.id;
 
-  function handleSelection(friend) {
-    // console.log(friend);
+  function handleSelectButton(friend) {
+    //!already  selected
+    if (isSelected) {
+      onHandleSelection(null);
+      return;
+    }
+    //else
     onHandleSelection(friend);
   }
 
@@ -111,31 +146,59 @@ function Friend({ friend, onHandleSelection, selectedFriend }) {
       )}
       {friend.balance === 0 && <p>You and {friend.name} are even</p>}
 
-      <Button onClick={() => handleSelection(friend)}>
-        {isSelected ? "close" : "select"}
+      <Button onClick={() => handleSelectButton(friend)}>
+        {isSelected ? "Close" : "Select"}
       </Button>
     </li>
   );
 }
 
-function FormSplitBill({ selectedFriend }) {
+function FormSplitBill({ selectedFriend, handleBillSplit }) {
+  const [bill, setBill] = useState("");
+  const [myExpense, setMyExpense] = useState("");
+  const [whoPaid, setWhoPaid] = useState("user");
+
+  function passBillForm(e) {
+    e.preventDefault();
+    if (!bill || !whoPaid) return;
+    handleBillSplit(bill, myExpense, whoPaid, selectedFriend);
+
+    //resetting the state
+    setBill("");
+    setMyExpense("");
+    setWhoPaid("user");
+  }
+
   return (
-    <form className="form-split-bill">
+    <form className="form-split-bill" onSubmit={passBillForm}>
       <h2>Split a bill with {selectedFriend.name}</h2>
 
       <label>Bill Value</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={bill}
+        onChange={(e) => setBill(Number(e.target.value))}
+      />
 
       <label>Your expense</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={myExpense}
+        onChange={(e) =>
+          // {my expense should not exceed bill}
+          setMyExpense(
+            Number(e.target.value) > bill ? myExpense : Number(e.target.value)
+          )
+        }
+      />
 
       <label>{selectedFriend.name} 's expense</label>
-      <input type="text" disabled />
+      <input type="text" disabled value={bill - myExpense} />
 
       <label>Who is Paying the bill</label>
-      <select>
+      <select value={whoPaid} onChange={(e) => setWhoPaid(e.target.value)}>
         <option value="user">You</option>
-        <option value="friend">{selectedFriend.name}</option>
+        <option value={selectedFriend.name}>{selectedFriend.name}</option>
       </select>
 
       <Button>Split bill</Button>
@@ -187,6 +250,7 @@ function FormAddFriend({ onAddFriend }) {
     </form>
   );
 }
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
