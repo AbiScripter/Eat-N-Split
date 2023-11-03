@@ -47,7 +47,7 @@ function App() {
 
   function handleSelection(friend) {
     //if already selected
-    setSelectedFriend((curr) => (curr?.id === friend.id ? null : friend));
+    setSelectedFriend((curr) => (curr?.id === friend?.id ? null : friend));
     //hide showfriendform if select button clicked
     setShowAddFriend(false);
   }
@@ -55,14 +55,14 @@ function App() {
   function handleBillSplit(bill, myExpense, whoPaid, selectedFriend) {
     if (whoPaid == "user") {
       let owesYou = 0 + (bill - myExpense);
-      console.log(`${selectedFriend.name} owes you ${bill - myExpense}`);
+      // console.log(`${selectedFriend.name} owes you ${bill - myExpense}`);
       seperate(selectedFriend, owesYou);
     } else {
       let youOwe = 0 - myExpense;
-      console.log(`You owe ${selectedFriend.name} ${myExpense}`);
+      // console.log(`You owe ${selectedFriend.name} ${myExpense}`);
       seperate(selectedFriend, youOwe);
     }
-
+    //closing the bill split form after submitted
     // setSelectedFriend(null);
   }
 
@@ -92,6 +92,7 @@ function App() {
 
       {selectedFriend && (
         <FormSplitBill
+          key={selectedFriend.id}
           selectedFriend={selectedFriend}
           handleBillSplit={handleBillSplit}
         />
